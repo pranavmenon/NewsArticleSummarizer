@@ -48,7 +48,7 @@ Example articles:
 	
 	Expected Result:
 	
-	(Reduced by 82%)
+	(Reduced by 82%) 
 	
 	Which happened in May of 2014, initially went unreported by the US Air Force even as a team of experts reviewed the service's nuclear forces in the wake of a testing scandal and security failures.
 	According to the Air Force, the missile was partially damaged in this troubleshooting process because the maintenance chief "Did not correctly adhere to technical guidance" and "Lacked the necessary proficiency level" to understand that what was being done to find the problem could cause greater damage to the missile.
