@@ -1,16 +1,11 @@
 package summarizer;
-import java.util.ArrayList;
-
-import textfetcher.*;
+import textfetcher.Article;
 
 
 public class Summarizer {
 
 	//TODO
-	public static SummaryInformation createSummary(ArrayList<Sentence> allSentencesList){
-		ArrayList<Sentence> summaryList = new ArrayList<Sentence>();
-		
-		SummaryInformation summaryInfo = new SummaryInformation(0, null, summaryList);
-		return summaryInfo;
+	public static SummaryInformation createSummary(Article article){
+		return null;
 	}
 }

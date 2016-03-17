@@ -1,8 +1,9 @@
 package main;
-import java.util.ArrayList;
+import java.io.IOException;
+import java.util.List;
 
-import textfetcher.*;
-import summarizer.*;
+import textfetcher.Article;
+import textfetcher.ArticleFetcher;
 
 
 public class Main {
@@ -18,7 +19,16 @@ public class Main {
 	 * 
 	 */
 	public static void main(String args[]){
-		ArrayList<Sentence> allSentencesList = ArticleTextFetcher.getFormattedArticleText("http://www.theguardian.com/world/2016/jan/25/refugee-crisis-schengen-area-scheme-brink-amsterdam-talks");
+		try {
+      Article article = ArticleFetcher.getArticle("http://www.theguardian.com/world/2016/jan/25/refugee-crisis-schengen-area-scheme-brink-amsterdam-talks");
+      for(int i=0; i<article.getSentences().size(); i++){
+        String sentence = article.getSentences().get(i);
+        System.out.printf("%d, length = %d : %s\n", i, sentence.length(), sentence);
+      }
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
 		//SummaryInformation summaryInfo = Summarizer.createSummary(allSentencesList);
 	}
 }
