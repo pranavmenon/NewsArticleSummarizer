@@ -1,8 +1,6 @@
 package main;
 import java.io.IOException;
-import java.text.BreakIterator;
 import java.util.List;
-import java.util.Locale;
 
 import summarizer.Summarizer;
 import textfetcher.Article;
@@ -26,7 +24,11 @@ public class Main {
       Article article = ArticleFetcher.getArticle("http://www.theguardian.com/world/2016/jan/25/refugee-crisis-schengen-area-scheme-brink-amsterdam-talks");
       for(int i=0; i<article.getSentences().size(); i++){
         String sentence = article.getSentences().get(i);
-        System.out.printf("%d, len=%d, %s\n",i,sentence.length(),sentence);
+        List<String> words = Summarizer.extractWordsFromString(sentence);
+        for(String word : words){
+          System.out.printf("%s | ", word);
+        }
+        System.out.println();
       }
     } catch (IOException e) {
       e.printStackTrace();

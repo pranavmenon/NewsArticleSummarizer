@@ -1,6 +1,5 @@
 package summarizer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -10,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import main.Utils;
 import textfetcher.Article;
 
 
@@ -63,29 +63,48 @@ public final class Summarizer {
   }
 
 
-  //TODO
+
   public static List<String> extractWordsFromString(String string){
     List<String> words = new LinkedList<String>();
     String wordsArray[] = string.split(" ");
-    
-    for(String word : wordsArray){
-      word = removePunctuationMarks(word);
-      words.add(word);
-      System.out.printf("%s | ", word);
+
+    for(int i=0; i<wordsArray.length; i++){
+      String word = wordsArray[i];
+      if(Utils.isNullOrBlank(word)){
+        continue;
+      }
+      else{
+        word = removePunctuationMarks(word);
+        
+        //remove full stop at the end of the sentence if it exists
+        if(word.substring(word.length()-1, word.length()).equals(".")){
+          word = word.substring(0, word.length()-1);
+        }
+        words.add(word);
+      }
     }
-    System.out.println();
-    //System.out.println(Arrays.toString(arr));
+
     return words;
   }
-  
-  
-  
+
+
+
   private static String removePunctuationMarks(String word){
-    String ret = word.replaceAll("\"", "");
+    if(Utils.isNullOrBlank(word)){
+      return word;
+    }
+    String ret = word.replaceAll(",", "");
+    ret = ret.replaceAll(";", "");
+    ret = ret.replaceAll(":", "");
+    ret = ret.replaceAll("\\?", "");
+    ret = ret.replaceAll("“", "");
+    ret = ret.replaceAll("”", "");
+    ret = ret.replaceAll("‘", "");
     return ret;
   }
-  
-  
+
+
+
   private static void removeStopWords(List<String> words){
     for (Iterator<String> iterator = words.iterator(); iterator.hasNext();) {
       String word = iterator.next();
@@ -94,15 +113,15 @@ public final class Summarizer {
       }
     }
   }
-  
-  
+
+
   //TODO
   private static String getBaseWord(String word){
     return word;
   }
-  
-  
-  
+
+
+
   private static List<String> getTopKeyWords(Map<String, Integer> wordFrequencyMap){
 
     //get a list of key words sorted in descending order of frequency
