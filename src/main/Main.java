@@ -31,10 +31,7 @@ public class Main {
     } catch (IOException e) {
       e.printStackTrace();
     }
-    /*String test = "\"“”";
-    for(char c : test.toCharArray()){
-      System.out.println((int)c);
-    }*/
+   
   }
 
 }
