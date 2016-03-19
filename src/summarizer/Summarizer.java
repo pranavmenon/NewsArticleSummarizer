@@ -1,6 +1,5 @@
 package summarizer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -10,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import main.Utils;
 import textfetcher.Article;
 
 
@@ -20,6 +20,7 @@ public final class Summarizer {
   private final static int NUMBER_OF_SENTENCES_IN_SUMMARY = 5;
   private final static int NUMBER_OF_TOP_KEYWORDS = 5;
 
+  
   public static SummaryInformation createSummary(Article article){
 
     //calculate word frequencies
@@ -32,7 +33,7 @@ public final class Summarizer {
       RankedSentence rankedSentence = new RankedSentence(sentence);
 
       for(String word : wordsInSentence){
-        String baseWord = getBaseWord(word);
+        String baseWord = getLemmaFormOf(word);
         int newGlobalFrequency = globalWordFrequencyMap.get(baseWord)==null? 1 : (globalWordFrequencyMap.get(baseWord) + 1);
         int newLocalFrequency =   rankedSentence.getWordFrequencyMap().get(baseWord)==null? 1 : (rankedSentence.getWordFrequencyMap().get(baseWord) + 1);
         globalWordFrequencyMap.put(baseWord, newGlobalFrequency);
@@ -41,12 +42,14 @@ public final class Summarizer {
       rankedSentenceList.add(rankedSentence);
     }
 
+    
     //calculate sentence ranks
     for(RankedSentence rankedSentence : rankedSentenceList){
       rankedSentence.calculateRank(globalWordFrequencyMap);
     }
     Collections.sort(rankedSentenceList, RankedSentence.RANK_DESCENDING_COMPARATOR);
 
+    
     //create summary and return
     int summaryLength = 0;
     List<String> summarySentenceList = new ArrayList<String>();
@@ -55,7 +58,7 @@ public final class Summarizer {
       summaryLength += rankedSentence.getSentence().length();
       summarySentenceList.add(rankedSentence.getSentence());
     }
-    double percentageOfSizeReduced = (double)(summaryLength)/article.getLength();
+    double percentageOfSizeReduced = 1.0 - ((double)(summaryLength)/article.getLength());
 
     List<String> topKeyWords = getTopKeyWords(globalWordFrequencyMap);
     SummaryInformation summary = new SummaryInformation(percentageOfSizeReduced, topKeyWords, summarySentenceList);
@@ -63,29 +66,50 @@ public final class Summarizer {
   }
 
 
-  //TODO
-  public static List<String> extractWordsFromString(String string){
+
+  private static List<String> extractWordsFromString(String string){
     List<String> words = new LinkedList<String>();
     String wordsArray[] = string.split(" ");
-    
-    for(String word : wordsArray){
-      word = removePunctuationMarks(word);
-      words.add(word);
-      System.out.printf("%s | ", word);
+
+    for(int i=0; i<wordsArray.length; i++){
+      String word = wordsArray[i];
+      if(Utils.isNullOrBlank(word)){
+        continue;
+      }
+      else{
+        word = removePunctuationMarks(word);
+        
+        //remove full stop at the end of the sentence if it exists
+        if(word.substring(word.length()-1, word.length()).equals(".")){
+          word = word.substring(0, word.length()-1);
+        }
+        words.add(word);
+      }
     }
-    System.out.println();
-    //System.out.println(Arrays.toString(arr));
+
     return words;
   }
-  
-  
-  
+
+
+
   private static String removePunctuationMarks(String word){
-    String ret = word.replaceAll("\"", "");
+    if(Utils.isNullOrBlank(word)){
+      return word;
+    }
+    String ret = word.replaceAll(",", "");
+    ret = ret.replaceAll(";", "");
+    ret = ret.replaceAll(":", "");
+    ret = ret.replaceAll("\\?", "");
+    ret = ret.replaceAll("“", "");
+    ret = ret.replaceAll("”", "");
+    ret = ret.replaceAll("‘", "");
+    ret = ret.replaceAll("\\(", "");
+    ret = ret.replaceAll("\\)", "");
     return ret;
   }
-  
-  
+
+
+
   private static void removeStopWords(List<String> words){
     for (Iterator<String> iterator = words.iterator(); iterator.hasNext();) {
       String word = iterator.next();
@@ -94,15 +118,15 @@ public final class Summarizer {
       }
     }
   }
-  
-  
-  //TODO
-  private static String getBaseWord(String word){
-    return word;
+
+
+
+  private static String getLemmaFormOf(String word){
+    return StanfordLemmatizer.lemmatize(word).get(0);
   }
-  
-  
-  
+
+
+
   private static List<String> getTopKeyWords(Map<String, Integer> wordFrequencyMap){
 
     //get a list of key words sorted in descending order of frequency
@@ -110,7 +134,7 @@ public final class Summarizer {
     Collections.sort(tempList, new Comparator<Map.Entry<String,Integer>>(){
       @Override
       public int compare(Entry<String, Integer> e1, Entry<String, Integer> e2) {
-        return Integer.compare(e1.getValue(), e2.getValue());
+        return Integer.compare(e2.getValue(), e1.getValue());
       }
     });
 
@@ -120,4 +144,5 @@ public final class Summarizer {
     }
     return topKeyWords;
   }
+  
 }

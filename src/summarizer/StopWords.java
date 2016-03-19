@@ -44,6 +44,8 @@ public final class StopWords {
     "among",
 
     "an",
+    
+    "a",
 
     "and",
 
@@ -356,6 +358,8 @@ public final class StopWords {
     "it",
 
     "its",
+    
+    "it’s",
 
     "itself",
 

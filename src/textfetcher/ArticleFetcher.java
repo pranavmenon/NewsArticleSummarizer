@@ -15,6 +15,7 @@ public final class ArticleFetcher {
 
   private static final int OPEN_DOUBLE_QUOTE_VALUE = 8220;
   private static final int CLOSE_DOUBLE_QUOTE_VALUE = 8221;
+  private static final int REGULAR_DOUBLE_QUOTE_VALUE = 34;
 
   private ArticleFetcher(){};
 
@@ -24,16 +25,6 @@ public final class ArticleFetcher {
     removeUndesiredNodes(doc);
     List<String> articleSentences = extractArticleSentences(doc);
     return new Article(articleSentences);
-  }
-
-
-
-  private static String getWebsiteName(String url){
-    String websiteName = url.substring(url.indexOf("www.")+4, url.indexOf(".com"));
-    if(websiteName.contains("//")){
-      websiteName = websiteName.substring(websiteName.indexOf("//")+2);
-    }
-    return websiteName;
   }
 
 
@@ -99,7 +90,7 @@ public final class ArticleFetcher {
   }
 
 
-  
+
   private static List<String> extractSentencesFromParagraph(String paragraph){
 
     //modify all honorifics in order to make sure that the BreakIteator gives the desired output
@@ -111,17 +102,17 @@ public final class ArticleFetcher {
     iterator.setText(paragraph);
     int start = iterator.first();
     String combinedQuotedSentence = "";
-    int numberOfOpenDoubleQuotes = 0;
-    
+    int numOfDoubleQuotes = 0;
+
     for (int end = iterator.next(); end != BreakIterator.DONE; start = end, end = iterator.next()) {
       String sentence = unmodifyHonorifics(paragraph.substring(start,end));
-      numberOfOpenDoubleQuotes += getDifferenceOfOpenAndClosedDoubleQuotes(sentence);
-      
-      if(numberOfOpenDoubleQuotes > 0){
-        //need to combine quoted sentences
+      numOfDoubleQuotes += getNumberOfDoubleQuotes(sentence);
+
+      if(numOfDoubleQuotes%2 != 0){
+        //unequal number of beginning and ending quotes, need to combine multiple sentences
         combinedQuotedSentence += sentence;
       }
-      else if(numberOfOpenDoubleQuotes == 0){
+      else{
         if(combinedQuotedSentence.equals("")){
           //this sentence contains no unfinished quotes ==> add this sentence to the sentence list
           sentenceList.add(sentence);
@@ -132,10 +123,6 @@ public final class ArticleFetcher {
           sentenceList.add(combinedQuotedSentence);
           combinedQuotedSentence = "";
         }
-      }
-      else{
-        System.out.println("ERROR!, more end quotes than beginning quotes!");
-        return null;
       }
 
     }
@@ -158,8 +145,8 @@ public final class ArticleFetcher {
 
   private static String modifyHonorifics_helper(String string, boolean unmodifyRequested){
     String modifiedString = string;
-    String originalHonorifics[] = {"Mr\\.", "Mrs\\.", "Ms\\.", "Dr\\.", "Prof\\."};
-    String modifiedHonorifics[] = {"Mr#", "Mrs#", "Ms#", "Dr#", "Prof#"};
+    String originalHonorifics[] = {"Mr\\.", "Mrs\\.", "Ms\\.", "Dr\\.", "Prof\\.", "U\\.S\\."};
+    String modifiedHonorifics[] = {"Mr#", "Mrs#", "Ms#", "Dr#", "Prof#", "U#S#"};
     for(int i=0; i<originalHonorifics.length; i++){
       if(unmodifyRequested){
         modifiedString = modifiedString.replaceAll(modifiedHonorifics[i], originalHonorifics[i]);
@@ -170,20 +157,18 @@ public final class ArticleFetcher {
     }
     return modifiedString;
   }
-  
-  
-  
-  private static int getDifferenceOfOpenAndClosedDoubleQuotes(String sentence){
-    int difference = 0;
+
+
+
+  private static int getNumberOfDoubleQuotes(String sentence){
+    int num = 0;
     for(char c : sentence.toCharArray()){
-      if((int)c == OPEN_DOUBLE_QUOTE_VALUE){
-        difference++;
-      }
-      else if((int)c == CLOSE_DOUBLE_QUOTE_VALUE){
-        difference--;
+      int val = (int)c;
+      if(val==REGULAR_DOUBLE_QUOTE_VALUE || val==OPEN_DOUBLE_QUOTE_VALUE || val==CLOSE_DOUBLE_QUOTE_VALUE){
+        num++;
       }
     }
-    return difference;
+    return num;
   }
 
 }
