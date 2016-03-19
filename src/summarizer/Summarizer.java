@@ -120,7 +120,7 @@ public final class Summarizer {
   }
 
 
-
+  
   private static String getLemmaFormOf(String word){
     return StanfordLemmatizer.lemmatize(word).get(0);
   }

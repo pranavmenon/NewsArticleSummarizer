@@ -1,6 +1,5 @@
 package main;
 import java.io.IOException;
-
 import summarizer.Summarizer;
 import summarizer.SummaryInformation;
 import textfetcher.Article;
