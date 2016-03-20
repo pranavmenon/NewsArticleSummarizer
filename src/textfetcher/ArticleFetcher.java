@@ -44,8 +44,9 @@ public final class ArticleFetcher {
 
     //mark 'by' line for removal
     Elements textElements = doc.select("p");
-    int i = 0, startingIndexToRemove = -1;
-    for(Element e : textElements){
+    int startingIndexToRemove = -1;
+    for(int i=0; i<textElements.size(); i++){
+      Element e = textElements.get(i);
       if(e.text().contains("Reporting by")){
         startingIndexToRemove = i;
         break;

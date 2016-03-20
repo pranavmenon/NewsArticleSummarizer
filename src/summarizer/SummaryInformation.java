@@ -21,7 +21,7 @@ public class SummaryInformation {
 	  for(int i=1; i<sentenceList.size(); i++){
 	    sentencesAsString += ("\n"+sentenceList.get(i));
 	  }
-	  return String.format("Article reduced by %.2f%% \n\nTop key words: %s\n\nSummary:\n%s\n",
+	  return String.format("(Reduced by %.2f%%)\n\nTop key words: %s\n\nSummary:\n%s\n",
 	      percentageOfSizeReduced*100, topKeyWords, sentencesAsString);
 	}
 }

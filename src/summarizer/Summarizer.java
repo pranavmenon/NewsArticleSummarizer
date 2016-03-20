@@ -8,6 +8,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.TreeMap;
 
 import main.Utils;
 import textfetcher.Article;
@@ -27,10 +28,11 @@ public final class Summarizer {
     Map<String, Integer> globalWordFrequencyMap = new HashMap<String, Integer>();
     List<RankedSentence> rankedSentenceList = new ArrayList<RankedSentence>();
 
-    for(String sentence : article.getSentences()){
+    for(int i=0; i<article.getSentences().size(); i++){
+      String sentence = article.getSentences().get(i);
       List<String> wordsInSentence = extractWordsFromString(sentence);
       removeStopWords(wordsInSentence);
-      RankedSentence rankedSentence = new RankedSentence(sentence);
+      RankedSentence rankedSentence = new RankedSentence(sentence,i);
 
       for(String word : wordsInSentence){
         String baseWord = getLemmaFormOf(word);
@@ -42,24 +44,30 @@ public final class Summarizer {
       rankedSentenceList.add(rankedSentence);
     }
 
-    
+
     //calculate sentence ranks
     for(RankedSentence rankedSentence : rankedSentenceList){
       rankedSentence.calculateRank(globalWordFrequencyMap);
     }
-    Collections.sort(rankedSentenceList, RankedSentence.RANK_DESCENDING_COMPARATOR);
 
+    
+    //get highest ranked sentences in chronological order
+    Collections.sort(rankedSentenceList, RankedSentence.RANK_DESCENDING_COMPARATOR);
+    List<RankedSentence> highestRankedSentencesInChronologicalOrder = new ArrayList<RankedSentence>();
+    for(int i=0; i<NUMBER_OF_SENTENCES_IN_SUMMARY; i++){
+      highestRankedSentencesInChronologicalOrder.add(rankedSentenceList.get(i));
+    }
+    Collections.sort(highestRankedSentencesInChronologicalOrder, RankedSentence.CHRONOLOGY_ASCENDING_COMPARATOR);
+    
     
     //create summary and return
     int summaryLength = 0;
     List<String> summarySentenceList = new ArrayList<String>();
-    for(int i=0; i<NUMBER_OF_SENTENCES_IN_SUMMARY; i++){
-      RankedSentence rankedSentence = rankedSentenceList.get(i);
+    for(RankedSentence rankedSentence : highestRankedSentencesInChronologicalOrder){
       summaryLength += rankedSentence.getSentence().length();
       summarySentenceList.add(rankedSentence.getSentence());
     }
     double percentageOfSizeReduced = 1.0 - ((double)(summaryLength)/article.getLength());
-
     List<String> topKeyWords = getTopKeyWords(globalWordFrequencyMap);
     SummaryInformation summary = new SummaryInformation(percentageOfSizeReduced, topKeyWords, summarySentenceList);
     return summary;
@@ -73,7 +81,7 @@ public final class Summarizer {
 
     for(int i=0; i<wordsArray.length; i++){
       String word = wordsArray[i];
-      if(Utils.isNullOrBlank(word)){
+      if(Utils.isNullOrBlank(word) || Utils.containsAlphanumeric(word)==false){
         continue;
       }
       else{
@@ -93,7 +101,7 @@ public final class Summarizer {
 
 
   private static String removePunctuationMarks(String word){
-    if(Utils.isNullOrBlank(word)){
+    if(Utils.isNullOrBlank(word) || Utils.containsAlphanumeric(word)==false){
       return word;
     }
     String ret = word.replaceAll(",", "");
@@ -102,6 +110,7 @@ public final class Summarizer {
     ret = ret.replaceAll("\\?", "");
     ret = ret.replaceAll("“", "");
     ret = ret.replaceAll("”", "");
+    ret = ret.replaceAll("\"", "");
     ret = ret.replaceAll("‘", "");
     ret = ret.replaceAll("\\(", "");
     ret = ret.replaceAll("\\)", "");
@@ -122,7 +131,7 @@ public final class Summarizer {
 
   
   private static String getLemmaFormOf(String word){
-    return StanfordLemmatizer.lemmatize(word).get(0);
+    return StanfordLemmatizer.lemmatize(word.toLowerCase()).get(0);
   }
 
 
