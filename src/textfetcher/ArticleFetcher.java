@@ -146,8 +146,8 @@ public final class ArticleFetcher {
 
   private static String modifyHonorifics_helper(String string, boolean unmodifyRequested){
     String modifiedString = string;
-    String originalHonorifics[] = {"Mr\\.", "Mrs\\.", "Ms\\.", "Dr\\.", "Prof\\.", "U\\.S\\."};
-    String modifiedHonorifics[] = {"Mr#", "Mrs#", "Ms#", "Dr#", "Prof#", "U#S#"};
+    String originalHonorifics[] = {"Mr\\.", "Mrs\\.", "Ms\\.", "Dr\\.", "Prof\\.", "U\\.S\\.", "Sen\\."};
+    String modifiedHonorifics[] = {"Mr#", "Mrs#", "Ms#", "Dr#", "Prof#", "U#S#", "Sen#"};
     for(int i=0; i<originalHonorifics.length; i++){
       if(unmodifyRequested){
         modifiedString = modifiedString.replaceAll(modifiedHonorifics[i], originalHonorifics[i]);
