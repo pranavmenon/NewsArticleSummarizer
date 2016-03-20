@@ -9,5 +9,5 @@ How it works:
   <li>Gets the lemma form of each word (https://en.wikipedia.org/wiki/Lemma_(morphology))</li>
   <li>Calculates the score (number of occurrences) of each lemma</li>
   <li>Assigns a rank to each sentence based on the scores of its individual lemmas</li>
-  <li>Returns the highest ranked sentences</li>
+  <li>Returns the highest ranked sentences in chronological order</li>
 </ol>
