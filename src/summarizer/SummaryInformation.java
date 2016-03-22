@@ -17,11 +17,11 @@ public class SummaryInformation {
 	
 	@Override
 	public String toString(){
-	  String sentencesAsString = sentenceList.get(0);
+	  StringBuilder builder = new StringBuilder(sentenceList.get(0));
 	  for(int i=1; i<sentenceList.size(); i++){
-	    sentencesAsString += ("\n"+sentenceList.get(i));
+	    builder.append(("\n"+sentenceList.get(i)));
 	  }
 	  return String.format("(Reduced by %.2f%%)\n\nTop key words: %s\n\nSummary:\n%s\n",
-	      percentageOfSizeReduced*100, topKeyWords, sentencesAsString);
+	      percentageOfSizeReduced*100, topKeyWords, builder.toString());
 	}
 }
