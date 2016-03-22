@@ -24,41 +24,22 @@ public final class Summarizer {
   
   public static SummaryInformation createSummary(Article article){
 
-    //calculate word frequencies
+    /*
+     * calculate word frequencies:
+     * globalWordFrequencyMap = keeps track of word frequencies across the article
+     * rankedSentence.wordFrequencyMap = keeps track of word frequencies in the given sentence
+     */
     Map<String, Integer> globalWordFrequencyMap = new HashMap<String, Integer>();
     List<RankedSentence> rankedSentenceList = new ArrayList<RankedSentence>();
-
-    for(int i=0; i<article.getSentences().size(); i++){
-      String sentence = article.getSentences().get(i);
-      List<String> wordsInSentence = extractWordsFromString(sentence);
-      removeStopWords(wordsInSentence);
-      RankedSentence rankedSentence = new RankedSentence(sentence,i);
-
-      for(String word : wordsInSentence){
-        String baseWord = getLemmaFormOf(word);
-        int newGlobalFrequency = globalWordFrequencyMap.get(baseWord)==null? 1 : (globalWordFrequencyMap.get(baseWord) + 1);
-        int newLocalFrequency =   rankedSentence.getWordFrequencyMap().get(baseWord)==null? 1 : (rankedSentence.getWordFrequencyMap().get(baseWord) + 1);
-        globalWordFrequencyMap.put(baseWord, newGlobalFrequency);
-        rankedSentence.getWordFrequencyMap().put(baseWord, newLocalFrequency);
-      }
-      rankedSentenceList.add(rankedSentence);
-    }
-
+    calculateWordFrequencies(article, rankedSentenceList, globalWordFrequencyMap);
+    
 
     //calculate sentence ranks
     for(RankedSentence rankedSentence : rankedSentenceList){
       rankedSentence.calculateRank(globalWordFrequencyMap);
     }
+    List<RankedSentence> highestRankedSentencesInChronologicalOrder = getHighestRankedSentencesInChronologicalOrder(rankedSentenceList);
 
-    
-    //get highest ranked sentences in chronological order
-    Collections.sort(rankedSentenceList, RankedSentence.RANK_DESCENDING_COMPARATOR);
-    List<RankedSentence> highestRankedSentencesInChronologicalOrder = new ArrayList<RankedSentence>();
-    for(int i=0; i<NUMBER_OF_SENTENCES_IN_SUMMARY; i++){
-      highestRankedSentencesInChronologicalOrder.add(rankedSentenceList.get(i));
-    }
-    Collections.sort(highestRankedSentencesInChronologicalOrder, RankedSentence.CHRONOLOGY_ASCENDING_COMPARATOR);
-    
     
     //create summary and return
     int summaryLength = 0;
@@ -75,6 +56,38 @@ public final class Summarizer {
 
 
 
+  private static void calculateWordFrequencies(Article article, List<RankedSentence> rankedSentenceList, Map<String, Integer> globalWordFrequencyMap){
+    for(int i=0; i<article.getSentences().size(); i++){
+      String sentence = article.getSentences().get(i);
+      List<String> wordsInSentence = extractWordsFromString(sentence);
+      removeStopWords(wordsInSentence);
+      RankedSentence rankedSentence = new RankedSentence(sentence,i);
+
+      for(String word : wordsInSentence){
+        String baseWord = getLemmaFormOf(word);
+        int newGlobalFrequency = globalWordFrequencyMap.get(baseWord)==null? 1 : (globalWordFrequencyMap.get(baseWord) + 1);
+        int newLocalFrequency =   rankedSentence.getWordFrequencyMap().get(baseWord)==null? 1 : (rankedSentence.getWordFrequencyMap().get(baseWord) + 1);
+        globalWordFrequencyMap.put(baseWord, newGlobalFrequency);
+        rankedSentence.getWordFrequencyMap().put(baseWord, newLocalFrequency);
+      }
+      rankedSentenceList.add(rankedSentence);
+    }
+  }
+  
+  
+  
+  private static List<RankedSentence> getHighestRankedSentencesInChronologicalOrder(List<RankedSentence> rankedSentenceList){
+    Collections.sort(rankedSentenceList, RankedSentence.RANK_DESCENDING_COMPARATOR);
+    List<RankedSentence> returnList = new ArrayList<RankedSentence>();
+    for(int i=0; i<NUMBER_OF_SENTENCES_IN_SUMMARY; i++){
+      returnList.add(rankedSentenceList.get(i));
+    }
+    Collections.sort(returnList, RankedSentence.CHRONOLOGY_ASCENDING_COMPARATOR);
+    return returnList;
+  }
+  
+  
+  
   private static List<String> extractWordsFromString(String string){
     List<String> words = new LinkedList<String>();
     String wordsArray[] = string.split(" ");

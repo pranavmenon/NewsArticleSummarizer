@@ -29,7 +29,7 @@ public class RankedSentence {
     for(String word : wordFrequencyMap.keySet()){
       int localFrequency = wordFrequencyMap.get(word);
       int globalFrequency = globalWordFrequencyMap.get(word);
-      rank += (localFrequency*(globalFrequency));
+      rank += (localFrequency*globalFrequency);
     }
   }
   
